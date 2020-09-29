@@ -4,7 +4,9 @@ Utils is a library for Application utilities for running
 
 Trigger and track spark Application in
 
-#### Framework Runners
+#### Framework Runners 
+
+this package support running applications in various infrastructurs that include 
 
 1. Kubernetes
 2. Databricks
