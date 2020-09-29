@@ -107,7 +107,7 @@ SUCCESS: Executed 54 tests in 38.6s
 #Artifacts can be found in build/lib directory 
 ```
 
-## Scala [Docs](https://bkosaraju.github.io/utils/scaladocs)
+## Scala [Docs](https://github.com/bkosaraju/utils/docs/index.html)
 
 ## Contributing
 Please feel free to raise a pull request in case if you feel like something can be updated or contributed
