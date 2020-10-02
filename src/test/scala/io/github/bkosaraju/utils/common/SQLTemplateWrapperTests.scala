@@ -23,7 +23,6 @@
 package io.github.bkosaraju.utils.common
 
 import io.github.bkosaraju.utils.AppInterface
-import io.github.bkosaraju.utils.AppInterface
 
 trait SQLTemplateWrapperTests extends AppInterface {
 
@@ -39,6 +38,7 @@ trait SQLTemplateWrapperTests extends AppInterface {
       tp.put("k1","v1")
       tp.put("k2","v2")
       tp.put("sqlFile","src/test/resources/templateWrapper/sample.sql")
+      println(s"""template replaced string:\n${commonUtils.getSQLFromTemplate(tp.toMap)}""")
       commonUtils.getSQLFromTemplate(tp.toMap).contains("k1=v1").equals(commonUtils.getSQLFromTemplate(tp.toMap).contains("k2=v2")).equals(true)
     }
   }
