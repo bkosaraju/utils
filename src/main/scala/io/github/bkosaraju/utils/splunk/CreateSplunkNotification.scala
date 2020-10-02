@@ -34,7 +34,8 @@ import org.apache.camel.support.DefaultExchange
 import org.apache.camel.support.DefaultMessage
 
 import scala.collection.JavaConverters.asJavaIterableConverter
-import scala.collection.JavaConversions.mapAsJavaMap
+import scala.collection.JavaConverters.mapAsJavaMapConverter
+import scala.collection.immutable.ListMap
 
 class CreateSplunkNotification
   extends Session
@@ -69,30 +70,30 @@ class CreateSplunkNotification
       configuration.setSource(null)
       configuration.setSourceType(null)
 
-//    configuration.setIndex(config.getOrElse("splunkIndex", "xxxxx"))
-//    configuration.setSource(config.getOrElse("splunkSource", "xxxxxx"))
-//    configuration.setSourceType(config.getOrElse("splunkSourceType", "xxxxxx"))
+      //    configuration.setIndex(config.getOrElse("splunkIndex", "imfpipeline"))
+      //    configuration.setSource(config.getOrElse("splunkSource", "imfpipeline"))
+      //    configuration.setSourceType(config.getOrElse("splunkSourceType", "httpevent"))
 
       //Message Specs
-//      {
-//        "header": {
-//          "assignmentGroup": "Test Group",
-//          "configurationItem": "Test Item",
-//          "priority": "LOW",
-//          "createTicket": "YES"
-//        },
-//        "body": {
-//          "description": "FAILED - JOB_ID: 1004, Cluster Step: 101, On Cluster : BatchCluster (j-xxxxxx) at 2020-09-15 01:40:56",
-//          "errorMessage": "unknown error",
-//          "errorLogLocation": "s3://logs/emr/j-xxxxxx/101"
-//        }
-//      }
+      //      {
+      //        "header": {
+      //          "assignmentGroup": "Test Group",
+      //          "configurationItem": "Test Item",
+      //          "priority": "LOW",
+      //          "createTicket": "YES"
+      //        },
+      //        "body": {
+      //          "description": "FAILED - JOB_ID: 1004, Cluster Step: 101, On Cluster : IMFBatchCluster (j-1234567) at 2020-09-15 01:40:56",
+      //          "errorMessage": "unknown error",
+      //          "errorLogLocation": "s3://imf-logs/emr/j-1234567/101"
+      //        }
+      //      }
 
 
       val createTicket =
-      if (Seq("yes","true").contains(config.getOrElse("splunkCreteTicket",config.getOrElse("createTicket","false")).toLowerCase())) {
-        "true"
-      } else { "false"}
+        if (Seq("yes","true").contains(config.getOrElse("splunkCreteTicket",config.getOrElse("createTicket","false")).toLowerCase())) {
+          "true"
+        } else { "false"}
       var header, derivedBody = collection.mutable.Map[String,String]()
       header.put("assignmentGroup",config.getOrElse("splunkAssignmentGroup",config.getOrElse("assignmentGroup","None")))
       header.put("configurationItem",config.getOrElse("splunkConfigurationItem",config.getOrElse("configurationItem","other")))
@@ -107,7 +108,7 @@ class CreateSplunkNotification
           case  "spark_on_databricks" => s"""clusetr: ${config.getOrElse("DB_URL","DBCKS Cluster")
             .replaceAll("^http[s]\\:\\/\\/","")
             .replaceAll("/.*","")}"""
-        case _ => "Cluster"
+          case _ => "Cluster"
 
         }
       }
@@ -123,8 +124,8 @@ class CreateSplunkNotification
       producer.start()
       val camelExchange: Exchange = new DefaultExchange(camelContext)
       val message: DefaultMessage = new DefaultMessage(camelExchange)
-      message.setBody(mapAsJavaMap(MaskSensitiveValuesFromMap(config ++ derivedBody).filter(!_._1.matches("^splunk.*"))))
-      message.setHeaders(mapAsJavaMap(header))
+      message.setBody(MaskSensitiveValuesFromMap(config ++ derivedBody).filter(!_._1.matches("^splunk.*")).asJava)
+      message.setHeaders(header.map(x => (x._1 -> x._2.asInstanceOf[AnyRef])).asJava)
       camelExchange.setIn(message)
       producer.process(camelExchange)
       producer.stop()
