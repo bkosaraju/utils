@@ -178,4 +178,5 @@ def gitlogDir = new File( project.projectDir.toString() + '/.git')
 if (gitlogDir.exists()) {
     apply from: 'ci/git.gradle'
     apply from: 'ci/artifactory.gradle'
+    apply from: 'ci/sonatype.gradle'
 }
