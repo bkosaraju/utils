@@ -1,8 +1,6 @@
 # Utils
 
-Utils is a library for Application utilities for running 
-
-Trigger and track spark Application in
+Utils is a library for Application collection of utilities for trigger and track spark Application in
 
 #### Framework Runners 
 
