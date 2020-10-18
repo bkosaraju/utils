@@ -38,8 +38,8 @@ jobs:
             - ~/.gradle
           key: v1-dependencies-{{ checksum "build.gradle" }}
 
-      # run tests!
-      - run: gradle test
+      # build and tests!
+      - run: gradle clean build
       - run:
           name: Save test results
           command: |
@@ -49,4 +49,6 @@ jobs:
       - store_test_results:
           path: ~/test-results
       - store_artifacts:
-          path: ~/test-results/junit         
+          path: ~/test-results/junit
+      - store_artifacts:
+          path: build/reports
