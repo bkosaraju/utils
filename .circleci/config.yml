@@ -51,4 +51,11 @@ jobs:
       - store_artifacts:
           path: ~/test-results/junit
       - store_artifacts:
-          path: build/reports
+          path: build/reportsversion: 2.1
+orbs:
+  codecov: codecov/codecov@1.0.2
+jobs:
+  build:
+    steps:
+      - codecov/upload:
+          file: build/scoverage/scoverage.coverage.xml
