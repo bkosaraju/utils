@@ -51,7 +51,8 @@ jobs:
       - store_artifacts:
           path: ~/test-results/junit
       - store_artifacts:
-          path: build/reportsversion: 2.1
+          path: build/reports
+version: 2.1
 orbs:
   codecov: codecov/codecov@1.0.2
 jobs:
