@@ -2,7 +2,9 @@
 #
 # Check https://circleci.com/docs/2.0/language-java/ for more details
 #
-version: 2
+version: 2.1
+orbs:
+  codecov: codecov/codecov@1.0.2
 jobs:
   build:
     docker:
@@ -52,11 +54,5 @@ jobs:
           path: ~/test-results/junit
       - store_artifacts:
           path: build/reports
-version: 2.1
-orbs:
-  codecov: codecov/codecov@1.0.2
-jobs:
-  build:
-    steps:
       - codecov/upload:
           file: build/scoverage/scoverage.coverage.xml
