@@ -1,5 +1,11 @@
-[![bkosaraju](https://circleci.com/gh/bkosaraju/utils.svg?style=svg)](https://app.circleci.com/pipelines/github/bkosaraju/utils)
+[![bkosaraju](https://circleci.com/gh/bkosaraju/utils.svg?style=shield)](https://app.circleci.com/pipelines/github/bkosaraju/utils)
 [![codecov](https://codecov.io/gh/bkosaraju/utils/branch/development/graph/badge.svg?token=QHHLFEEHE2)](https://codecov.io/gh/bkosaraju/utils)
+[![Apache license](https://img.shields.io/github/issues/bkosaraju/utils.svg
+)](https://github.com/bkosaraju/utils/issues)
+[![Apache license](https://img.shields.io/crates/l/Apache?color=green&label=Apache%202.0&logo=apache&logoColor=red
+)](https://www.apache.org/licenses/LICENSE-2.0.txt)
+[![Version](https://img.shields.io/github/v/tag/bkosaraju/utils?label=Current%20Version
+)]()
 
 
 # Utils
