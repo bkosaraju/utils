@@ -41,7 +41,7 @@ jobs:
           key: v1-dependencies-{{ checksum "build.gradle" }}
 
       # build and tests and generate docs!
-      - run: gradle clean build reportScoverage scaladoc
+      - run: gradle reportScoverage scaladoc
       - run:
           name: Save test results
           command: |
@@ -55,4 +55,4 @@ jobs:
       - store_artifacts:
           path: build/reports
       - codecov/upload:
-          file: build/
+          file: build/reports/scoverage/scoverage.xml
