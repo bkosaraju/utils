@@ -1,3 +1,6 @@
+[![bkosaraju](https://circleci.com/gh/bkosaraju/utils.svg?style=svg)](https://app.circleci.com/pipelines/github/bkosaraju/utils)
+
+
 # Utils
 
 Utils is a library for Application collection of utilities for trigger and track spark Application in
