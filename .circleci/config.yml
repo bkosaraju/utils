@@ -2,7 +2,9 @@
 #
 # Check https://circleci.com/docs/2.0/language-java/ for more details
 #
-version: 2
+version: 2.1
+orbs:
+  codecov: codecov/codecov@1.1.1
 jobs:
   build:
     docker:
@@ -38,8 +40,8 @@ jobs:
             - ~/.gradle
           key: v1-dependencies-{{ checksum "build.gradle" }}
 
-      # build and tests!
-      - run: gradle clean test
+      # build and tests and generate docs!
+      - run: gradle reportScoverage scaladoc
       - run:
           name: Save test results
           command: |
@@ -52,3 +54,5 @@ jobs:
           path: ~/test-results/junit
       - store_artifacts:
           path: build/reports
+      - codecov/upload:
+          file: build/reports/scoverage/scoverage.xml
