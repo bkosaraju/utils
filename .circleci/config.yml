@@ -39,7 +39,7 @@ jobs:
           key: v1-dependencies-{{ checksum "build.gradle" }}
 
       # build and tests!
-      - run: gradle clean build
+      - run: gradle clean test
       - run:
           name: Save test results
           command: |
