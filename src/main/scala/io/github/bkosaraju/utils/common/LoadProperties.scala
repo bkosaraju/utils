@@ -88,6 +88,7 @@ trait LoadProperties {
         .filter(_.matches("^secret\\..*"))
       if (secureProps.nonEmpty) {
         val awsUtils = (new AwsUtils)
+        awsUtils.setConfig(props.asInstanceOf[java.util.Map[String,String]].asScala.toMap)
         secureProps
           .map(x => props.setProperty(
             x.replaceAll("^secret\\.", ""),

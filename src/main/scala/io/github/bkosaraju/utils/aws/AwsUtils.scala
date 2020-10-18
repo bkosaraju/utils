@@ -22,19 +22,21 @@
 
 package io.github.bkosaraju.utils.aws
 
+
 import java.io.{BufferedInputStream, ByteArrayInputStream, File, FileInputStream, FileOutputStream, InputStream, PipedInputStream}
+import java.nio.charset.StandardCharsets
 import java.nio.file.Files
 import java.util.UUID
 import java.util.zip.GZIPOutputStream
 
 import io.github.bkosaraju.utils.common.{Exceptions, Session}
+import com.amazonaws.ClientConfiguration
 import com.amazonaws.auth.DefaultAWSCredentialsProviderChain
 import com.amazonaws.regions.Regions
-import com.amazonaws.services.s3.model.{CopyObjectRequest, DeleteObjectRequest, GetObjectRequest, ObjectMetadata, PutObjectRequest, S3ObjectSummary}
-import com.amazonaws.services.s3.{AmazonS3, AmazonS3ClientBuilder, AmazonS3URI}
+import com.amazonaws.services.s3.model.{CopyObjectRequest, DeleteObjectRequest, GetObjectRequest, ObjectMetadata, PutObjectRequest, S3ObjectSummary, SSEAwsKeyManagementParams, SSECustomerKey}
+import com.amazonaws.services.s3.{AmazonS3, AmazonS3ClientBuilder, AmazonS3EncryptionClientBuilder, AmazonS3URI}
 import com.amazonaws.services.simplesystemsmanagement.AWSSimpleSystemsManagementClientBuilder
 import com.amazonaws.services.simplesystemsmanagement.model.GetParameterRequest
-import io.github.bkosaraju.utils.common.{Exceptions, Session}
 import org.apache.commons.codec.binary.Base64
 import org.apache.commons.codec.digest.DigestUtils
 import org.apache.commons.compress.archivers.zip.ZipArchiveInputStream
@@ -60,7 +62,16 @@ class AwsUtils
     try {
       val s3Client = getS3Client(Regions.fromName(config.getOrElse("regionName", "ap-southeast-2")))
       if (config.contains("bucketName") && keyName != null && fileName != null) {
-        s3Client.putObject(config("bucketName"), keyName, new File(fileName))
+        val putObjectRequest = new PutObjectRequest(
+          config("bucketName")
+          ,keyName
+          ,new File(fileName)
+        )
+        if (config.getOrElse("kmsKeyId","").nonEmpty) {
+          putObjectRequest
+            .withSSEAwsKeyManagementParams(new SSEAwsKeyManagementParams(config("kmsKeyId")))
+        }
+        s3Client.putObject(putObjectRequest)
       } else {
         logger.error(s"Unable to load File into S3 under bucket Name(${config("bucketName")}), with given keyName(${keyName}) and fileName(${fileName})")
         throw InvalidS3MetadatException(s"Unable to load File into S3 under bucket Name(${config("bucketName")}), with given keyName(${keyName})")
@@ -78,7 +89,6 @@ class AwsUtils
     try {
       val s3Client = getS3Client(Regions.fromName(config.getOrElse("regionName", "ap-southeast-2")))
       if (config.contains("bucketName") && keyName != null && fileName != null) {
-
         s3Client.getObject(new GetObjectRequest(
           config("bucketName"), keyName), new File(fileName))
       } else {
@@ -104,6 +114,10 @@ class AwsUtils
         config.getOrElse("targetBucketName", config("bucketName")),
         config.getOrElse("targetObjectKey", config("objectKey"))
       )
+      if (config.getOrElse("kmsKeyId","").nonEmpty) {
+        copyObjectReq
+          .withSSEAwsKeyManagementParams(new SSEAwsKeyManagementParams(config("kmsKeyId")))
+      }
       s3Client.copyObject(copyObjectReq)
       if (config.getOrElse("deleteSourceObject", "false").equalsIgnoreCase("true")) {
         logger.info("deleteSourceObject flag set to true hence trying to delete source object..")
@@ -187,9 +201,11 @@ class AwsUtils
   def getS3Client(awsRegion: Regions = Regions.AP_SOUTHEAST_2): AmazonS3 = {
     try {
       val credentialsProvider = DefaultAWSCredentialsProviderChain.getInstance()
-
+      val clientConfiguration = new ClientConfiguration()
+      clientConfiguration.setSignerOverride("AWSS3V4SignerType")
       AmazonS3ClientBuilder
         .standard().withCredentials(credentialsProvider)
+        .withClientConfiguration(clientConfiguration)
         .withRegion(awsRegion)
         .build()
     } catch {
@@ -202,9 +218,12 @@ class AwsUtils
 
   def getSSMValue(namespace: String): String = {
     try {
+      //Only set the client config for SSM
       val client = AWSSimpleSystemsManagementClientBuilder
         .standard()
+        .withClientConfiguration(AWSClientConfigBuilder(config))
         .withRegion(Regions.fromName(config.getOrElse("regionName", "ap-southeast-2"))).build()
+
       val getParameterRequest = new GetParameterRequest().withName(namespace).withWithDecryption(true)
 
       client.getParameter(getParameterRequest).getParameter.getValue
@@ -276,7 +295,17 @@ class AwsUtils
           }
           putS3Object(ops.toMap,localObject+".compressed",ops("keyName"))
         } else {
-          s3Client.putObject(ops("bucketName"), ops("keyName"), content)
+          val putObjectRequest = new PutObjectRequest(
+            ops("bucketName")
+            ,ops("keyName")
+            ,new ByteArrayInputStream(content.getBytes(StandardCharsets.UTF_8))
+            ,new ObjectMetadata()
+          )
+          if (ops.getOrElse("kmsKeyId","").nonEmpty) {
+            putObjectRequest
+              .withSSEAwsKeyManagementParams(new SSEAwsKeyManagementParams(ops("kmsKeyId")))
+          }
+          s3Client.putObject(putObjectRequest)
         }
       } else {
         logger.error(s"""Unable to write File to S3 as bucketName and KeyName are mandatory to write data""")
@@ -284,8 +313,8 @@ class AwsUtils
       }
     } catch {
       case e : Exception => {
-      logger.error("Unable to upload podlog to S3 Location..")
-      throw e
+        logger.error("Unable to upload podlog to S3 Location..")
+        throw e
       }
     } finally {
       FileUtils.deleteDirectory(tempFileLocation.toFile)
@@ -297,17 +326,17 @@ class AwsUtils
       putS3ObjectFromString(config, config("content"))
     } else {
       throw InvalidS3MetadatException(s"""Unable to get the content form given Configuration""")
-      }
     }
+  }
 
 
   def pathToMap(s3Uri: String): Map[String,String] = {
     val URI = new AmazonS3URI(s3Uri)
     val region = if (URI.getRegion == null) { "ap-southeast-2" } else URI.getRegion
-      Map(
-        "regionName" -> region,
-        "bucketName" -> URI.getBucket,
-        "keyName" ->URI.getKey
-      )
+    Map(
+      "regionName" -> region,
+      "bucketName" -> URI.getBucket,
+      "keyName" ->URI.getKey
+    )
   }
 }

@@ -22,16 +22,22 @@
 
 package io.github.bkosaraju.utils.aws.emr.functions
 
-import io.github.bkosaraju.utils.aws.Config
+import io.github.bkosaraju.utils.aws.{AWSClientConfigBuilder, Config}
 import io.github.bkosaraju.utils.common.Exceptions
 import com.amazonaws.services.elasticmapreduce.AmazonElasticMapReduceClientBuilder
+
 import collection.JavaConverters._
 
 class GetClusterDetails extends Config with Exceptions {
   def getClusterIdByName(config: Map[String,String]): String = {
+
+    //TODO: Remove proxy wireup for client builders.
+
+
     val emr = AmazonElasticMapReduceClientBuilder
       .standard()
       .withCredentials(credentialsProvider)
+      .withClientConfiguration(AWSClientConfigBuilder(config))
       .withRegion(config.getOrElse("regionName", DEFAULT_REGION))
       .build()
 
@@ -43,7 +49,7 @@ class GetClusterDetails extends Config with Exceptions {
       .filter(!_.getStatus.getState.contains("TERMINATED"))
     if(activeClusters.nonEmpty) {
       activeClusters.head.getId
-      } else{
+    } else{
       throw new NonExistedEMRCluster(s"No cluster running with name ${config("emrClusterName")}")
     }
   }
@@ -52,6 +58,7 @@ class GetClusterDetails extends Config with Exceptions {
     val emr = AmazonElasticMapReduceClientBuilder
       .standard()
       .withCredentials(credentialsProvider)
+      .withClientConfiguration(AWSClientConfigBuilder(config))
       .withRegion(config.getOrElse("regionName", DEFAULT_REGION))
       .build()
     val activeClusters = emr
@@ -66,12 +73,12 @@ class GetClusterDetails extends Config with Exceptions {
   def getActiveCluster (config: Map[String,String] ) : String = {
 
     if(config.contains("emrClusterId") && validateEMRClusterById(config) ) {
-        config("emrClusterId")
-      } else if (config.contains("emrClusterName")) {
-        getClusterIdByName(config)
-      } else {
-        throw new InvalidArgumentsPassed("must provide valid emrClusterName/emrClusterId or Cluster is in terminated state for provided jobs ..")
-      }
+      config("emrClusterId")
+    } else if (config.contains("emrClusterName")) {
+      getClusterIdByName(config)
+    } else {
+      throw new InvalidArgumentsPassed("must provide valid emrClusterName/emrClusterId or Cluster is in terminated state for provided jobs ..")
+    }
   }
 }
 

@@ -22,8 +22,8 @@
 
 
 buildscript {
-    ext.scalaVariant = "2.11"
-    ext.sparkVersion = "2.4.4"
+    ext.scalaVariant = "2.12"
+    ext.sparkVersion = "3.0.0"
     ext.awsSDKVersion = "1.11.721"
 
     repositories {
@@ -97,10 +97,6 @@ dependencies {
     api group: 'com.zaxxer', name: 'HikariCP', version: '3.3.1'
     api group: 'org.springframework', name: 'spring-jdbc', version: '5.2.0.RELEASE'
     api group: 'org.springframework', name: 'spring-web', version: '5.2.0.RELEASE'
-    api group: 'com.fasterxml.jackson.module', name: 'jackson-module-scala_2.10', version: '2.10.0'
-    api group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.10.0'
-    api group: 'com.fasterxml.jackson.core', name: 'jackson-core', version: '2.10.0'
-    api group: 'com.fasterxml.jackson.core', name: 'jackson-annotations', version: '2.10.0'
     api group: 'commons-io', name: 'commons-io', version: '2.4'
 
     //SSM Dependencies
@@ -129,7 +125,8 @@ dependencies {
     api group: 'io.kubernetes', name: 'client-java', version: '7.0.0'
 
     //Template Wrapper
-    api group: 'org.scalatra.scalate', name: 'scalate-core_'+"$scalaVariant", version: '1.8.0'
+    //api group: 'org.scalatra.scalate', name: 'scalate-core_'+"$scalaVariant", version: '1.8.0'
+    compile group: 'com.github.spullara.mustache.java', name: 'scala-extensions-2.12', version: '0.9.6'
 
     //Splunk HEC Integration
     api group: 'org.apache.camel', name: 'camel-splunk-hec', version: '3.4.3'
@@ -140,7 +137,7 @@ dependencies {
     testImplementation group: "org.scalatest", name: "scalatest_$scalaVariant", version :"3.0.5"
     testImplementation group: "junit", name: "junit", version :"4.12"
     testImplementation group: "com.github.stefanbirkner", name: "system-rules", version: "1.16.0"
-    testRuntime group: "org.pegdown", name: "pegdown", version: "1.6.0"
+    testRuntimeOnly group: "org.pegdown", name: "pegdown", version: "1.6.0"
     testImplementation group: 'org.mockito', name: 'mockito-all', version: '1.9.5'
 }
 
@@ -181,4 +178,5 @@ def gitlogDir = new File( project.projectDir.toString() + '/.git')
 if (gitlogDir.exists()) {
     apply from: 'ci/git.gradle'
     apply from: 'ci/artifactory.gradle'
+    apply from: 'ci/sonatype.gradle'
 }

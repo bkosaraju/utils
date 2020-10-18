@@ -30,10 +30,11 @@ trait WriteDataTests extends AppInterface {
 
   test("writeData : Write data into Target location") {
     import context.implicits._
-    assertResult() {
+    assertResult(true) {
       val targetPath = "build/tmp/"+ UUID.randomUUID().toString.replaceAll("-","")
       val bDF = (1 to 10).toDF("col1")
       writeDataFrame(bDF,targetPath,"parquet","overwrite",Map())
+      true
     }
   }
   test("writeData : Raise an exception in case if there is any issue with writing the data to HDFS") {

@@ -1,33 +1,65 @@
 # Utils
 
-Utils is a library for Application utilities for running 
+Utils is a library for Application collection of utilities for trigger and track spark Application in
 
-Trigger and track spark Application in
+Framework Runners 
+-----------------------
 
-#### Framework Runners
+this package support running applications in various infrastructurs that include 
 
 1. Kubernetes
 2. Databricks
 3. EMR 
 
-#### AWS Helper Utilities 
+AWS Helper Utilities
+----------------------- 
 1. S3
 2. SSM
 3. EMR 
 
-#### Common Helper Utilities
+Common Helper Utilities
+-----------------------
 1. Mail application
 2. Template wrappers
 3. String and Map Manipulations
 4. Crypto Utilities (encryption and decryption Strings/data in tables)
 5. Splunk HEC integration
 
-#### Spark Utilities
+Spark Utilities
+---------------
 
 1. Hash generator
 2. CDC Computation
 3. Column level Encryption and decryption
 4. Dataframe reader (common interface for all apps) and writer
+
+Where can I get the latest release?
+-----------------------------------
+You can download source from [SCM](https://github.com/bkosaraju/utils).
+
+Alternatively you can pull binaries from the central Maven repositories:
+For mvn: 
+```xml
+<dependency>
+  <groupId>io.github.bkosaraju</groupId>
+  <artifactId>utils_#ScalaVariant#</artifactId>
+  <version>#UtilsVersion#</version>
+</dependency>
+ 
+<!--Fat/ Assembly Jar-->
+<dependency>
+  <groupId>io.github.bkosaraju</groupId>
+  <artifactId>utils_#ScalaVariant#</artifactId>
+  <version>#UtilsVersion#</version>
+  <classifier>all</classifier>
+</dependency>
+
+```
+for Gradle: 
+
+```groovy
+    api group: "io.github.bkosaraju", name: "utils_$scalaVariant", version: "$UtilsVersion"
+```
 
 ## Build Instructions 
 
@@ -35,8 +67,6 @@ Trigger and track spark Application in
 ./gradlew clean build
 
 > Configure project :
-build for
- currentTag: 13.43, tagCommitId : 3c253c11701718b7832a78558f46ecd3e4328cbd
 
 > Task :scaladoc
 model contains 174 documentable templates
@@ -107,7 +137,7 @@ SUCCESS: Executed 54 tests in 38.6s
 #Artifacts can be found in build/lib directory 
 ```
 
-## Scala [Docs](https://bkosaraju.github.io/utils/scaladocs)
+## Scala [Docs](https://bkosaraju.github.io/utils)
 
 ## Contributing
 Please feel free to raise a pull request in case if you feel like something can be updated or contributed

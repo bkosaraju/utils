@@ -22,13 +22,11 @@
 
 package io.github.bkosaraju.utils.aws.emr.functions
 
-import io.github.bkosaraju.utils.aws.Config
-import io.github.bkosaraju.utils.aws.AwsUtils
+import io.github.bkosaraju.utils.aws.{AWSClientConfigBuilder, AwsUtils, Config}
 import io.github.bkosaraju.utils.common.Exceptions
 import com.amazonaws.services.elasticmapreduce.AmazonElasticMapReduceClientBuilder
 import com.amazonaws.services.elasticmapreduce.model.DescribeClusterRequest
 import com.amazonaws.services.s3.model.S3ObjectSummary
-import io.github.bkosaraju.utils.common.Exceptions
 
 class ExtractEMRSparkStepLog(config :Map[String,String]) extends Config with Exceptions {
   val utils = new AwsUtils
@@ -44,6 +42,7 @@ class ExtractEMRSparkStepLog(config :Map[String,String]) extends Config with Exc
       val emr = AmazonElasticMapReduceClientBuilder
         .standard()
         .withCredentials(credentialsProvider)
+        .withClientConfiguration(AWSClientConfigBuilder(config))
         .withRegion(config.getOrElse("regionName", DEFAULT_REGION))
         .build()
       val logBasePath = emr.describeCluster(clusterRequest)
