@@ -38,8 +38,8 @@ jobs:
             - ~/.gradle
           key: v1-dependencies-{{ checksum "build.gradle" }}
 
-      # build and tests!
-      - run: gradle clean test
+      # build and tests and generate docs!
+      - run: gradle clean build scaladoc
       - run:
           name: Save test results
           command: |
